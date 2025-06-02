@@ -183,10 +183,7 @@ def fetch_and_store(load_from_redis=False):
             if next_href:
                 # Append client_id only if it's not already in the URL
                 if "client_id=" not in next_href:
-                    if "?" in next_href:
-                        next_href += '&client_id=sobAMMic36lHKNZEwXsaEj5feRIAW9Yx'
-                    else:
-                        next_href += '?client_id=sobAMMic36lHKNZEwXsaEj5feRIAW9Yx'
+                    next_href += f'&client_id={SOUNDCLOUD_CLIENT_ID}'
                 url = next_href
             else:
                 url = None
