@@ -20,7 +20,6 @@ BASE_URL="https://api-v2.soundcloud.com"
 BATCH_LIMIT = 1000
 MAX_CONCURRENCY = 24
 
-
 def robust_parse_dt(dt_str):
     if not dt_str:
         return datetime(1970, 1, 1)
@@ -187,9 +186,9 @@ def insert_records(records, user_id, client):
         except Exception as e:
             logger.error(f"ClickHouse insert failed: {e}")
 
-async def snowball_user(user_id, queue: asyncio.Queue, ch_client):
+async def snowball_user(user_id, ch_client):
 
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(trust_env=False) as session:
         url = f"{BASE_URL}/users/{user_id}/followers?client_id={CLIENT_ID}&offset=0&limit=100&linked_partitioning=1&app_version={APP_VERSION}&app_locale=en"
         while True:
             data = await fetch_followers(session, user_id, url)
@@ -217,7 +216,7 @@ async def worker(queue):
             queue.task_done()
             break
         try:
-            await snowball_user(user_id, queue, ch_client)
+            await snowball_user(user_id, ch_client)
         except Exception as e:
             logger.error(f"Error processing user in worker: {e}")
             logger.error(traceback.format_exc())

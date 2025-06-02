@@ -3,7 +3,7 @@ import time
 
 import requests
 
-from src.util.config import CLASH_GROUP, CLASH_URL, CLASH_SECRET
+from src.util.config import CLASH_GROUP, CLASH_SECRET, CLASH_CONTROL_URL
 from src.util.logger import logger
 
 # 配置你的分组名和节点名
@@ -103,7 +103,7 @@ NODES = [
 , "\U0001F1F3\U0001F1F1 荷兰 | 华中"
 ]
 
-CONTROLLER = f"{CLASH_URL}/proxies/{CLASH_GROUP}"
+CONTROLLER = f"{CLASH_CONTROL_URL}/proxies/{CLASH_GROUP}"
 SECRET = CLASH_SECRET
 
 
@@ -117,7 +117,7 @@ def main():
         resp = requests.put(url, json={"name": node})
         logger.info(f"Switched to {node}, status: {resp.status_code}")
         i += 1
-        time.sleep(10)
+        time.sleep(15)
 
 if __name__ == "__main__":
     main()

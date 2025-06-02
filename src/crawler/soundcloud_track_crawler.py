@@ -1,5 +1,6 @@
 import asyncio
 import json
+import random
 import traceback
 from datetime import datetime
 
@@ -16,15 +17,10 @@ REDIS_KEY_IDENTIFIER = "lionel_2M"
 REDIS_KEY = f"soundcloud:track:{REDIS_KEY_IDENTIFIER}:offset"
 
 BATCH_SIZE = 1000
-CONCURRENT_USERS = 8
+CONCURRENT_USERS = 16
 TRACKS_LIMIT_PER_REQUEST = 100
 RETRY_LIMIT = 10
-RETRY_BACKOFF = 1.2
-
-# 隧道域名:端口号
-PROXY_TUNNEL = PROXY_TUNNEL
-PROXY_USER_NAME = PROXY_USER_NAME
-PROXY_PWD = PROXY_PWD
+RETRY_BACKOFF = 1
 
 # --- SCHEMA INFO ---
 TRACK_COLS = [
@@ -202,9 +198,9 @@ async def fetch_json_with_retry(session, url, user_id, max_attempts=RETRY_LIMIT)
             logger.warning(
                 f"User {user_id}: Attempt {attempt+1}/{max_attempts} - {e} on {url} - traceback: {traceback.format_exc()}"
             )
-        delay = delay * 2
         await asyncio.sleep(delay)
-        delay *= 2
+        delay *= random.uniform(1, 2)
+        delay = min(delay, 15)
 
     logger.error(f"User {user_id}: Failed after {max_attempts} attempts for {url}")
     if last_exception:
@@ -231,7 +227,6 @@ async def fetch_and_store_tracks_for_user(session, user_id):
                 sep = '&' if '?' in next_href else '?'
                 next_href += f'{sep}limit={TRACKS_LIMIT_PER_REQUEST}'
             url = next_href
-            await asyncio.sleep(0.2)
         else:
             break
 
